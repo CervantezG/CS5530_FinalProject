@@ -87,12 +87,15 @@ namespace LMS.Controllers
             from d in db.Departments
             join c in db.Courses
             on d.Subject equals c.Subject
+            into q
             select new
             {
                 subject = d.Subject,
                 dname = d.Name,
-                courses = c.Subject
+                courses = q.Select(course => new { number = course.Number, cname = course.Name})
             };
+
+            int x = query.Count();
 
             return Json(query.ToArray());
         }
@@ -113,8 +116,25 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetClassOfferings(string subject, int number)
         {
+            // TODO: Test
+            var query =
+            from co in db.Courses
+            join cl in db.Classes
+            on co.CourseId equals cl.CourseId
+            join p in db.Professors
+            on cl.Professor equals p.UId
+            select new
+            {
+                season = cl.Season,
+                year = cl.Year,
+                location = cl.Location,
+                start = cl.StartTime,
+                end = cl.StartTime,
+                fname = p.FirstName,
+                lname = p.LastName
+            };
 
-            return Json(null);
+            return Json(query.ToArray());
         }
 
         /// <summary>

@@ -150,6 +150,7 @@ namespace LMS.Controllers
         /// false if the student is already enrolled in the Class.</returns>
         public IActionResult Enroll(string subject, int num, string season, int year, string uid)
         {
+            // TODO: Test
             bool result;
 
             try

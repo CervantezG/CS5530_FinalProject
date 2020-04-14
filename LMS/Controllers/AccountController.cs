@@ -488,9 +488,9 @@ namespace LMS.Controllers
             // Added a new row to the table CheckedOut
             using (Team11LMSContext db = new Team11LMSContext())
             {
-                // Start a transaction
-                var transaction = db.Database.BeginTransaction();
-                db.Database.AutoTransactionsEnabled = false;
+                //// Start a transaction
+                //var transaction = db.Database.BeginTransaction();
+                //db.Database.AutoTransactionsEnabled = false;
 
                 // Create a new user object.
                 Users user = new Users { };
@@ -499,8 +499,7 @@ namespace LMS.Controllers
                 db.SaveChanges();
 
                 // Get max user id
-                uint userId = (from u in db.Users select u.UId).Max<uint>();
-                
+                uint userId = (from u in db.Users select u.UId).Max<uint>();                
 
                 // Create a type of user based on role
                 if (role.Equals("Administrator"))
@@ -542,9 +541,11 @@ namespace LMS.Controllers
                     db.SaveChanges();
                 }
 
-                transaction.Commit();
+                //transaction.Commit();
 
-                return "u" + userId.ToString();
+                string fmt = "0000000";
+
+                return "u" + userId.ToString(fmt);
             }
         }
 

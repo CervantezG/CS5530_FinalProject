@@ -242,7 +242,7 @@ namespace LMS.Controllers
                 && co.Subject == subject
                 select new
                 {
-                    ClassId = cl.ClassId
+                    cl.ClassId
                 };
 
                 // Create a new assignment category object.
@@ -282,8 +282,47 @@ namespace LMS.Controllers
         /// false if an assignment with the same name already exists in the same assignment category.</returns>
         public IActionResult CreateAssignment(string subject, int num, string season, int year, string category, string asgname, int asgpoints, DateTime asgdue, string asgcontents)
         {
+            bool result;
 
-            return Json(new { success = false });
+            try
+            {
+                var query =
+                from cl in db.Classes
+                join co in db.Courses
+                on cl.CourseId equals co.CourseId
+                join ac in db.AssignmentCategories
+                on cl.ClassId equals ac.ClassId
+                where cl.Season == season
+                && cl.Year == year
+                && co.Number == num
+                && co.Subject == subject
+                && ac.Name == category
+                select new
+                {
+                    ac.AssignmentCategoryId
+                };
+
+                // Create a new assignment category object.
+                Assignments assignment = new Assignments
+                {
+                    Name = asgname,
+                    Points = (uint)asgpoints,
+                    Contents = asgcontents,
+                    DueDate = asgdue,
+                    AssignmentCategoryId = query.FirstOrDefault().AssignmentCategoryId
+                };
+
+                db.Assignments.Add(assignment);
+                db.SaveChanges();
+
+                result = true;
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException e)
+            {
+                result = false;
+            }
+
+            return Json(new { success = result });
         }
 
 

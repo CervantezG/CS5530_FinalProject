@@ -292,8 +292,22 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetMyClasses(string uid)
         {
+            //uint intergerId = uint.Parse(uid.Substring(1));
 
-            return Json(null);
+            var query =
+            from cl in db.Classes
+            join co in db.Courses
+            on cl.CourseId equals co.CourseId
+            where cl.Professor == uint.Parse(uid.Substring(1))
+            select new {
+                subject = co.Subject,
+                number = co.Number,
+                name = co.Name,
+                season = cl.Season,
+                year = cl.Year
+            };
+
+            return Json(query.ToArray());
         }
 
 

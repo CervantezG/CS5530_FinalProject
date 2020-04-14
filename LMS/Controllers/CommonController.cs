@@ -123,6 +123,8 @@ namespace LMS.Controllers
             on co.CourseId equals cl.CourseId
             join p in db.Professors
             on cl.Professor equals p.UId
+            where co.Subject == subject
+            && co.Number == number
             select new
             {
                 season = cl.Season,

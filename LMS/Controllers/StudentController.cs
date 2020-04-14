@@ -68,7 +68,7 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetMyClasses(string uid)
         {
-            //TODO: Test
+            //TODO: Test adding grade
             var query =
             from cl in db.Classes
             join e in db.Enrolled
@@ -106,8 +106,23 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetAssignmentsInClass(string subject, int num, string season, int year, string uid)
         {
+            var query =
+            from a in db.Assignments
+            join ac in db.AssignmentCategories
+            on a.AssignmentCategoryId equals ac.AssignmentCategoryId
+            join s in db.Submissions
+            on a.AssignmentId equals s.AssignmentId
+            into sub
+            select new
+            {
+                aname = a.Name,
+                cname = ac.Name,
+                due = a.DueDate,
+                score = sub.Count()
+            };
 
-            return Json(null);
+
+            return Json(query.ToArray());
         }
 
 
@@ -150,7 +165,6 @@ namespace LMS.Controllers
         /// false if the student is already enrolled in the Class.</returns>
         public IActionResult Enroll(string subject, int num, string season, int year, string uid)
         {
-            // TODO: Test
             bool result;
 
             try
@@ -173,7 +187,6 @@ namespace LMS.Controllers
                 {
                     UId = uint.Parse(uid.Substring(1)),
                     ClassId = query.FirstOrDefault().ClassId
-                    
                 };
 
                 db.Enrolled.Add(classEnrollment);

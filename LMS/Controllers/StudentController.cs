@@ -77,14 +77,14 @@ namespace LMS.Controllers
             on cl.CourseId equals co.CourseId
             where e.UId == uint.Parse(uid.Substring(1))
             select new
-          {
-              subject = co.Subject,
-              number = co.Number,
-              name = co.Name,
-              season = cl.Season,
-              year = cl.Year,
-              grade = e.Grade == null ? "--" : e.Grade
-          };
+            {
+                subject = co.Subject,
+                number = co.Number,
+                name = co.Name,
+                season = cl.Season,
+                year = cl.Year,
+                grade = e.Grade == null ? "--" : e.Grade
+            };
 
 
             return Json(query.ToArray());
@@ -106,20 +106,32 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetAssignmentsInClass(string subject, int num, string season, int year, string uid)
         {
+            // TODO: Test with a submission
             var query =
             from a in db.Assignments
             join ac in db.AssignmentCategories
             on a.AssignmentCategoryId equals ac.AssignmentCategoryId
+            join cl in db.Classes
+            on ac.ClassId equals cl.ClassId
+            join co in db.Courses
+            on cl.CourseId equals co.CourseId
             join s in db.Submissions
             on a.AssignmentId equals s.AssignmentId
             into sub
+            from q in sub.DefaultIfEmpty()
+            where cl.Season == season
+            && cl.Year == year
+            && co.Number == num
+            && co.Subject == subject
             select new
             {
                 aname = a.Name,
                 cname = ac.Name,
                 due = a.DueDate,
-                score = sub.Count()
+                score = q.Score == null ? null : (uint?)q.Score
             };
+
+            int x = query.Count();
 
 
             return Json(query.ToArray());

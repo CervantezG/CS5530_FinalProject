@@ -92,10 +92,8 @@ namespace LMS.Controllers
             {
                 subject = d.Subject,
                 dname = d.Name,
-                courses = q.Select(course => new { number = course.Number, cname = course.Name})
+                courses = q.Select(course => new { number = course.Number, cname = course.Name })
             };
-
-            int x = query.Count();
 
             return Json(query.ToArray());
         }
@@ -197,6 +195,49 @@ namespace LMS.Controllers
         /// </returns>
         public IActionResult GetUser(string uid)
         {
+            uint trueUID = (uint.Parse(uid.Substring(1)));
+            var query =
+            from s in db.Students
+            where s.UId == trueUID
+            select new
+            {
+                fname = s.FirstName,
+                lname = s.LastName,
+                uid = s.UId,
+                department = s.Major
+            };
+            foreach (var stud in query)
+            {
+                return Json(query.ToArray());
+            }
+            var queryProf =
+           from p in db.Professors
+           where p.UId == trueUID
+           select new
+           {
+               fname = p.FirstName,
+               lname = p.LastName,
+               uid = p.UId,
+               department = p.Department
+           };
+            foreach (var prof in queryProf)
+            {
+                return Json(queryProf.ToArray());
+            }
+
+            var queryAdmin =
+                from ad in db.Administrators
+                where ad.UId == trueUID
+                select new
+                {
+                    fname = ad.FirstName,
+                    lname = ad.LastName,
+                    uid = ad.UId,
+                };
+            foreach (var admin in queryAdmin)
+            {
+                return Json(queryAdmin.ToArray());
+            }
 
             return Json(new { success = false });
         }

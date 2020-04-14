@@ -89,6 +89,7 @@ namespace LMS.Controllers
         /// false if the Course already exists.</returns>
         public IActionResult CreateCourse(string subject, int number, string name)
         {
+            // TODO: Handle case when course number in UI is a string
             Boolean result;
 
             try
@@ -133,57 +134,57 @@ namespace LMS.Controllers
         /// a Class offering of the same Course in the same Semester.</returns>
         public IActionResult CreateClass(string subject, int number, string season, int year, DateTime start, DateTime end, string location, string instructor)
         {
-            Boolean result;
+            Boolean result = true;
 
             // Check to see if another class occupies the same location at the same time
-            // TODO: Start here
             var openLocationQuery =
             from c in db.Classes
             where (c.Location == location)
             && (c.Season == season)
             && (c.Year == year)
-            && (((c.StartTime >= start.TimeOfDay)
-                 && (c.StartTime < end.TimeOfDay))
-               ||
-                ((c.EndDtime >= start.TimeOfDay)
-                 && (c.EndDtime < end.TimeOfDay))
-                )
+            && end.TimeOfDay > c.StartTime
+            && start.TimeOfDay < c.EndDtime
             select new { courseId = c.ClassId };
 
+            foreach (var pRow in openLocationQuery)
+            {
+                result = false;
+                break;
+            }
 
             try
             {
-                // Get CourseId using subject and number
-                var query =
-                from c in db.Courses
-                where (c.Subject == subject)
-                && (c.Number == number)
-                select new { courseId = c.CourseId };
-
-                uint? courseId = null;
-                foreach (var cRow in query)
+                if (result)
                 {
-                    courseId = cRow.courseId;
-                    break;
+                    // Get CourseId using subject and number
+                    var query =
+                    from c in db.Courses
+                    where (c.Subject == subject)
+                    && (c.Number == number)
+                    select new { courseId = c.CourseId };
+
+                    uint? courseId = null;
+                    foreach (var cRow in query)
+                    {
+                        courseId = cRow.courseId;
+                        break;
+                    }
+
+                    // Create a new class object.
+                    Classes newClass = new Classes
+                    {
+                        CourseId = (uint)courseId,
+                        Season = (string)season,
+                        Year = (uint)year,
+                        StartTime = (TimeSpan)start.TimeOfDay,
+                        EndDtime = (TimeSpan)end.TimeOfDay,
+                        Location = (string)location,
+                        Professor = uint.Parse(instructor)
+                    };
+
+                    db.Classes.Add(newClass);
+                    db.SaveChanges();
                 }
-
-
-                // Create a new class object.
-                Classes newClass = new Classes
-                {
-                    CourseId = (uint)courseId,
-                    Season = (string)season,
-                    Year = (uint)year,
-                    StartTime = (TimeSpan)start.TimeOfDay,
-                    EndDtime = (TimeSpan)end.TimeOfDay,
-                    Location = (string)location,
-                    Professor = uint.Parse(instructor)
-                };
-
-                db.Classes.Add(newClass);
-                db.SaveChanges();
-
-                result = true;
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException e)
             {

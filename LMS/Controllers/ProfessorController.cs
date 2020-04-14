@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LMS.Models.LMSModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -170,7 +171,8 @@ namespace LMS.Controllers
             && co.Number == num
             && cl.Season == season
             && cl.Year == year
-            select new {
+            select new
+            {
                 aname = a.Name,
                 cname = ac.Name,
                 due = a.DueDate
@@ -194,8 +196,23 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetAssignmentCategories(string subject, int num, string season, int year)
         {
+            var query =
+            from ac in db.AssignmentCategories
+            join cl in db.Classes
+            on ac.ClassId equals cl.ClassId
+            join co in db.Courses
+            on cl.CourseId equals co.CourseId
+            where co.Subject == subject
+            && co.Number == num
+            && cl.Season == season
+            && cl.Year == year
+            select new
+            {
+                name = ac.Name,
+                weight = ac.Weight
+            };
 
-            return Json(null);
+            return Json(query.ToArray());
         }
 
         /// <summary>
@@ -211,8 +228,42 @@ namespace LMS.Controllers
         ///	false if an assignment category with the same name already exists in the same class.</returns>
         public IActionResult CreateAssignmentCategory(string subject, int num, string season, int year, string category, int catweight)
         {
+            bool result;
 
-            return Json(new { success = false });
+            try
+            {
+                var query =
+                from cl in db.Classes
+                join co in db.Courses
+                on cl.CourseId equals co.CourseId
+                where cl.Season == season
+                && cl.Year == year
+                && co.Number == num
+                && co.Subject == subject
+                select new
+                {
+                    ClassId = cl.ClassId
+                };
+
+                // Create a new assignment category object.
+                AssignmentCategories assignmentCategory = new AssignmentCategories
+                {
+                    Name = category,
+                    Weight = (uint)catweight,
+                    ClassId = query.FirstOrDefault().ClassId
+                };
+
+                db.AssignmentCategories.Add(assignmentCategory);
+                db.SaveChanges();
+
+                result = true;
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException e)
+            {
+                result = false;
+            }
+
+            return Json(new { success = result });
         }
 
         /// <summary>
@@ -292,14 +343,13 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetMyClasses(string uid)
         {
-            //uint intergerId = uint.Parse(uid.Substring(1));
-
             var query =
             from cl in db.Classes
             join co in db.Courses
             on cl.CourseId equals co.CourseId
             where cl.Professor == uint.Parse(uid.Substring(1))
-            select new {
+            select new
+            {
                 subject = co.Subject,
                 number = co.Number,
                 name = co.Name,

@@ -163,11 +163,8 @@ namespace LMS.Controllers
             on cl.CourseId equals co.CourseId
             join s in db.Submissions
             on a.AssignmentId equals s.AssignmentId
-            //group new { a.Name, ac.Name, a.DueDate } by new {a.Name, ac.Name, a.DueDate} into categoryGroup
-            where (ac.Name == category
-                   || category == null
-                  )
-            && co.Subject == subject
+            into sub
+            where co.Subject == subject
             && co.Number == num
             && cl.Season == season
             && cl.Year == year
@@ -175,10 +172,11 @@ namespace LMS.Controllers
             {
                 aname = a.Name,
                 cname = ac.Name,
-                due = a.DueDate
+                due = a.DueDate,
+                submissions = sub.Count()
             };
 
-            return Json(null);
+            return Json(query.ToArray());
         }
 
 

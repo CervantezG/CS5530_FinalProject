@@ -165,14 +165,15 @@ namespace LMS.Controllers
             join s in db.Submissions
             on a.AssignmentId equals s.AssignmentId
             into sub
+            from q in sub.DefaultIfEmpty()
             where co.Subject == subject
             && co.Number == num
             && cl.Season == season
             && cl.Year == year
-            && ((ac.Name == category)
-                ||
-                category == null
-               )
+            //&& ((ac.Name == category)
+            //    ||
+            //    category == null
+            //   )
             select new
             {
                 aname = a.Name,

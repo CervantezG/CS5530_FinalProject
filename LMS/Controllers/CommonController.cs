@@ -190,7 +190,35 @@ namespace LMS.Controllers
         /// <returns>The submission text</returns>
         public IActionResult GetSubmissionText(string subject, int num, string season, int year, string category, string asgname, string uid)
         {
-            // TODO : Implement
+            // TODO : Test
+            uint trueUID = (uint.Parse(uid.Substring(1)));
+            var query =
+            from co in db.Courses
+            join cl in db.Classes
+            on co.CourseId equals cl.CourseId
+            join ac in db.AssignmentCategories
+            on cl.ClassId equals ac.ClassId
+            join a in db.Assignments
+            on ac.AssignmentCategoryId equals a.AssignmentCategoryId
+            join sub in db.Submissions
+            on a.AssignmentId equals sub.AssignmentId
+            where co.Subject == subject
+            && co.Number == num
+            && cl.Season == season
+            && cl.Year == year
+            && ac.Name == category
+            && a.Name == asgname
+            && sub.UId == trueUID
+            select new
+            {
+                sub.Contents
+            };
+
+            if (query.Count() >= 1 && query.FirstOrDefault().Contents != null)
+            {
+                return Content("" + query.FirstOrDefault().Contents);
+            }
+
             return Content("");
         }
 

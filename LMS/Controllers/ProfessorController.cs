@@ -125,7 +125,7 @@ namespace LMS.Controllers
             {
                 fname = s.FirstName,
                 lname = s.LastName,
-                uid = s.UId.ToString(fmt),
+                uid = "u" + s.UId.ToString(fmt),
                 dob = s.Dob,
                 grade = e.Grade
             };
@@ -348,8 +348,37 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetSubmissionsToAssignment(string subject, int num, string season, int year, string category, string asgname)
         {
+            // TODO : Test
+            string fmt = "0000000";
 
-            return Json(null);
+            var query =
+            from cl in db.Classes
+            join co in db.Courses
+            on cl.CourseId equals co.CourseId
+            join ac in db.AssignmentCategories
+            on cl.ClassId equals ac.ClassId
+            join a in db.Assignments
+            on ac.AssignmentCategoryId equals a.AssignmentCategoryId
+            join sub in db.Submissions
+            on a.AssignmentId equals sub.AssignmentId
+            join st in db.Students
+            on sub.UId equals st.UId
+            where cl.Season == season
+            && cl.Year == year
+            && co.Number == num
+            && co.Subject == subject
+            && ac.Name == category
+            && a.Name == asgname
+            select new
+            {
+                fname = st.FirstName,
+                lname = st.LastName,
+                uid = "u" + st.UId.ToString(fmt),
+                time = sub.SubmissionTime,
+                score = sub.Score
+            };
+
+            return Json(query.ToArray());
         }
 
 
@@ -367,6 +396,7 @@ namespace LMS.Controllers
         /// <returns>A JSON object containing success = true/false</returns>
         public IActionResult GradeSubmission(string subject, int num, string season, int year, string category, string asgname, string uid, int score)
         {
+            // TODO : Implement
 
             return Json(new { success = true });
         }

@@ -304,6 +304,7 @@ namespace LMS.Controllers
         /// <returns>A JSON object containing a single field called "gpa" with the number value</returns>
         public IActionResult GetGPA(string uid)
         {
+            // TODO: Test this when a student has some grades.
             var query =
             from e in db.Enrolled
             where e.UId == uint.Parse(uid.Substring(1))
@@ -313,16 +314,26 @@ namespace LMS.Controllers
                 gradePoints = convertLetterGradeToPoint(e.Grade.Trim())                
             };
 
-            double gradePointsSum = 0;
-            int gradePointsTally = 0;
+            double gpa;
 
-            foreach(var row in query)
+            int gradePointsCount = query.Count();
+            if(gradePointsCount > 0)
             {
-                gradePointsSum += row.gradePoints;
-                ++gradePointsTally;
-            }
+                double gradePointsSum = 0;
 
-            return Json(new { gpa = gradePointsSum / gradePointsTally } );
+                foreach (var row in query)
+                {
+                    gradePointsSum += row.gradePoints;
+                }
+
+                gpa = gradePointsSum / gradePointsCount;
+            }
+            else
+            {
+                gpa = 0.0;
+            }
+            
+            return Json(new { gpa = gpa} );
         }
 
         private static double convertLetterGradeToPoint(string letterGrade)
@@ -351,7 +362,7 @@ namespace LMS.Controllers
             }
             else if (letterGrade.Equals("C+"))
             {
-                gradePoint = 2.4;
+                gradePoint = 2.3;
             }
             else if (letterGrade.Equals("C"))
             {
@@ -373,7 +384,8 @@ namespace LMS.Controllers
             {
                 gradePoint = 0.7;
             }
-            else if (letterGrade.Equals("E"))
+            // Case when letterGrade.Equals("E")
+            else
             {
                 gradePoint = 0.0;
             }

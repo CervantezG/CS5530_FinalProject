@@ -308,6 +308,61 @@ namespace LMS.Controllers
             return Json(null);
         }
 
+        private static double convertLetterGradeToPoint(string letterGrade)
+        {
+            double gradePoint;
+
+            if (letterGrade.Equals("A"))
+            {
+                gradePoint = 4.0;
+            }
+            else if (letterGrade.Equals("A-"))
+            {
+                gradePoint = 3.7;
+            }
+            else if (letterGrade.Equals("B+"))
+            {
+                gradePoint = 3.3;
+            }
+            else if (letterGrade.Equals("B"))
+            {
+                gradePoint = 3.0;
+            }
+            else if (letterGrade.Equals("B-"))
+            {
+                gradePoint = 2.7;
+            }
+            else if (letterGrade.Equals("C+"))
+            {
+                gradePoint = 2.4;
+            }
+            else if (letterGrade.Equals("C"))
+            {
+                gradePoint = 2.0;
+            }
+            else if (letterGrade.Equals("C-"))
+            {
+                gradePoint = 1.7;
+            }
+            else if (letterGrade.Equals("D+"))
+            {
+                gradePoint = 1.3;
+            }
+            else if (letterGrade.Equals("D"))
+            {
+                gradePoint = 1.0;
+            }
+            else if (letterGrade.Equals("D-"))
+            {
+                gradePoint = 0.7;
+            }
+            else if (letterGrade.Equals("E"))
+            {
+                gradePoint = 0.0;
+            }
+            return -99;
+        }
+
         /*******End code to modify********/
 
     }

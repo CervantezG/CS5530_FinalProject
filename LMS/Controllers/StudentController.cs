@@ -304,8 +304,25 @@ namespace LMS.Controllers
         /// <returns>A JSON object containing a single field called "gpa" with the number value</returns>
         public IActionResult GetGPA(string uid)
         {
+            var query =
+            from e in db.Enrolled
+            where e.UId == uint.Parse(uid.Substring(1))
+            && e.Grade != null
+            select new
+            {
+                gradePoints = convertLetterGradeToPoint(e.Grade.Trim())                
+            };
 
-            return Json(null);
+            double gradePointsSum = 0;
+            int gradePointsTally = 0;
+
+            foreach(var row in query)
+            {
+                gradePointsSum += row.gradePoints;
+                ++gradePointsTally;
+            }
+
+            return Json(new { gpa = gradePointsSum / gradePointsTally } );
         }
 
         private static double convertLetterGradeToPoint(string letterGrade)

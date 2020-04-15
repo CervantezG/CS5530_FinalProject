@@ -153,7 +153,7 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetAssignmentsInCategory(string subject, int num, string season, int year, string category)
         {
-            // TODO: Limit by category
+            // TODO: Test.  
             var query =
             from ac in db.AssignmentCategories
             join a in db.Assignments

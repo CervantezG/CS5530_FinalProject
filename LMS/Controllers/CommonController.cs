@@ -150,8 +150,27 @@ namespace LMS.Controllers
         /// <returns>The assignment contents</returns>
         public IActionResult GetAssignmentContents(string subject, int num, string season, int year, string category, string asgname)
         {
-            // TODO: Implement
-            return Content("");
+            // TODO: Test
+            var query =
+            from co in db.Courses
+            join cl in db.Classes
+            on co.CourseId equals cl.CourseId
+            join ac in db.AssignmentCategories
+            on cl.ClassId equals ac.ClassId
+            join a in db.Assignments
+            on ac.AssignmentCategoryId equals a.AssignmentCategoryId
+            where co.Subject == subject
+            && co.Number == num
+            && cl.Season == season
+            && cl.Year == year
+            && ac.Name == category
+            && a.Name == asgname
+            select new
+            {
+                a.Contents
+            };
+
+            return Content("" + query.FirstOrDefault().Contents);
         }
 
 

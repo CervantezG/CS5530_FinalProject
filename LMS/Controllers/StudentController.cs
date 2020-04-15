@@ -128,11 +128,8 @@ namespace LMS.Controllers
                 aname = a.Name,
                 cname = ac.Name,
                 due = a.DueDate,
-                score = q.Score == null ? null : (uint?)q.Score
+                score = (uint?)q.Score
             };
-
-            int x = query.Count();
-
 
             return Json(query.ToArray());
         }
@@ -160,8 +157,86 @@ namespace LMS.Controllers
         public IActionResult SubmitAssignmentText(string subject, int num, string season, int year,
           string category, string asgname, string uid, string contents)
         {
+            // TODO: Test where there is no assignment and then again where there is an assignment
+            Boolean result = true;
 
-            return Json(new { success = false });
+            var query =
+            from ac in db.AssignmentCategories
+            join a in db.Assignments
+            on ac.AssignmentCategoryId equals a.AssignmentCategoryId
+            join cl in db.Classes
+            on ac.ClassId equals cl.ClassId
+            join co in db.Courses
+            on cl.CourseId equals co.CourseId
+            join s in db.Submissions
+            on a.AssignmentId equals s.AssignmentId
+            into q
+            where ac.Name == category
+            && co.Subject == subject
+            && co.Number == num
+            && cl.Season == season
+            && cl.Year == year
+            && a.Name == asgname
+            select new
+            {
+                AssignmentId = a.AssignmentId,
+                sub = q.Where(sub => sub.UId == uint.Parse(uid.Substring(1))).Select(sub => new { uId = sub.UId })
+
+            };
+
+            Boolean firstSubmission = true;
+
+            foreach (var row in query)
+            {
+                if(row.sub.Count() > 0)
+                {
+                    firstSubmission = false;
+                }
+            }           
+
+            try
+            {
+                if(firstSubmission)
+                {
+                    // Create a new course object.
+                    Submissions submitionOfAssignment = new Submissions
+                    {
+                        UId = uint.Parse(uid.Substring(1)),
+                        AssignmentId = query.FirstOrDefault().AssignmentId,
+                        Score = 0,
+                        SubmissionTime = DateTime.Now,
+                        Contents = contents
+                    };
+
+                    db.Submissions.Add(submitionOfAssignment);
+                    db.SaveChanges();
+
+                    result = true;
+                }
+                else
+                {
+                    var existingSubmissionQuery =
+                    from s in db.Submissions
+                    where s.AssignmentId == query.FirstOrDefault().AssignmentId
+                    && s.UId == uint.Parse(uid.Substring(1))
+                    select s;
+
+                    foreach(var row in existingSubmissionQuery)
+                    {
+                        row.Contents = contents;
+                        row.SubmissionTime = DateTime.Now;
+                    }
+
+                    db.SaveChanges();
+                }
+                
+            }
+            catch (Exception)
+            {
+                result = false;
+            }
+
+            return Json(new { success = result });
         }
 
 

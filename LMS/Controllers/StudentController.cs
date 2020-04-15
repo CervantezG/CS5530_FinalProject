@@ -360,7 +360,7 @@ namespace LMS.Controllers
             {
                 gradePoint = 0.0;
             }
-            return -99;
+            return gradePoint;
         }
 
         /*******End code to modify********/

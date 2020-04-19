@@ -325,6 +325,10 @@ namespace LMS.Controllers
                 db.SaveChanges();
 
                 result = true;
+
+                //IActionResult x = this.GetStudentsInClass(subject, num, season, year).;
+
+                LMS.UpdateClassGrade.updateAllClassGrades(db, query.FirstOrDefault().ClassId);
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException e)
             {

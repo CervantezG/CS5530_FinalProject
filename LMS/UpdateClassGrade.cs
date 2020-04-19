@@ -178,5 +178,27 @@ namespace LMS
             return earnedPoints;
 
         }
+
+        internal static void updateAllClassGrades(Team11LMSContext db, uint classId)
+        {
+            var query =
+            from cl in db.Classes
+            join co in db.Courses
+            on cl.CourseId equals co.CourseId
+            join e in db.Enrolled
+            on cl.ClassId equals e.ClassId
+            join s in db.Students
+            on e.UId equals s.UId
+            where cl.ClassId == classId
+            select new
+            {
+                uId = s.UId
+            };
+
+            foreach(var row in query)
+            {
+                updateClassGrade(db, classId, row.uId);
+            }
+        }
     }
 }

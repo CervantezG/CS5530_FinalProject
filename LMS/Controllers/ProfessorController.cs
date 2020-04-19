@@ -464,7 +464,48 @@ namespace LMS.Controllers
 
         private void updateClassGrade(uint classId, uint uId)
         {
-            throw new NotImplementedException();
+            // Create twos dictionary for each assignment category to possible points and earned points
+            Dictionary<string, uint> possiblePoints = new Dictionary<string, uint>();
+            Dictionary<string, uint> earnedPoints = new Dictionary<string, uint>();
+
+            // Create a dictionary for each assignment category weight
+            Dictionary<string, uint> categoryWeights = new Dictionary<string, uint>();
+
+            // Write a query to return "Assignment Category", "Category Weight", "Possible Points", and "EarnedPoint" (zero if empty)
+            var query =
+            (from ac in db.AssignmentCategories
+            join cl in db.Classes
+            on ac.ClassId equals cl.ClassId
+            join a in db.Assignments
+            on ac.AssignmentCategoryId equals a.AssignmentCategoryId
+            where cl.ClassId == classId
+            select new
+            {
+                assignmentName = a.Name,
+                categoryName = ac.Name,
+                categoryWeight = ac.Weight,
+                possiblePoints = a.Points
+            }).Distinct();
+
+            foreach (var row in query)
+            {
+                System.Diagnostics.Debug.WriteLine("");
+                System.Diagnostics.Debug.WriteLine(row.categoryName);
+                System.Diagnostics.Debug.WriteLine(row.categoryWeight);
+                //System.Diagnostics.Debug.WriteLine(row.earnedPoints);
+                System.Diagnostics.Debug.WriteLine("");
+            }
+
+            // Iterate over each row in query to sum total points and possible points to 
+
+
+            var enrolledQuery =
+            from e in db.Enrolled
+            where e.ClassId == classId
+            && e.UId == uId
+            select e;
+
+            
         }
 
 

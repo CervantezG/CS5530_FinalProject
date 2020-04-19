@@ -243,6 +243,8 @@ namespace LMS.Controllers
         {
             // TODO : Implement
             uint trueUID = (uint.Parse(uid.Substring(1)));
+            string fmt = "0000000";
+
             var query =
             from s in db.Students
             where s.UId == trueUID
@@ -250,12 +252,13 @@ namespace LMS.Controllers
             {
                 fname = s.FirstName,
                 lname = s.LastName,
-                uid = s.UId,
+                uid = "u" + s.UId.ToString(fmt),
                 department = s.Major
             };
+
             foreach (var stud in query)
             {
-                return Json(query.ToArray());
+                return Json(stud);
             }
             var queryProf =
            from p in db.Professors
@@ -264,12 +267,12 @@ namespace LMS.Controllers
            {
                fname = p.FirstName,
                lname = p.LastName,
-               uid = p.UId,
+               uid = "u" + p.UId.ToString(fmt),
                department = p.Department
            };
             foreach (var prof in queryProf)
             {
-                return Json(queryProf.ToArray());
+                return Json(prof);
             }
 
             var queryAdmin =
@@ -279,15 +282,17 @@ namespace LMS.Controllers
                 {
                     fname = ad.FirstName,
                     lname = ad.LastName,
-                    uid = ad.UId,
+                    uid = "u" + ad.UId.ToString(fmt)
                 };
             foreach (var admin in queryAdmin)
             {
-                return Json(queryAdmin.ToArray());
+                return Json(admin);
             }
 
             return Json(new { success = false });
         }
+
+    
 
 
         /*******End code to modify********/

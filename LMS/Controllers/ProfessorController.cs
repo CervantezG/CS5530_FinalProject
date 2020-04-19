@@ -170,16 +170,17 @@ namespace LMS.Controllers
             && co.Number == num
             && cl.Season == season
             && cl.Year == year
-            //&& ((ac.Name == category)
-            //    ||
-            //    category == null
-            //   )
+            && ((ac.Name == category)
+                ||
+                category == null
+               )
+            group q by new {assignmentName = a.Name, assignmentCategoryName = ac.Name, a.DueDate } into groupedAssignments
             select new
             {
-                aname = a.Name,
-                cname = ac.Name,
-                due = a.DueDate,
-                submissions = sub.Count()
+                aname = groupedAssignments.Key.assignmentName,
+                cname = groupedAssignments.Key.assignmentCategoryName,
+                due = groupedAssignments.Key.DueDate,
+                submissions = groupedAssignments.Count()
             };
 
             return Json(query.ToArray());

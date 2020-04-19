@@ -107,10 +107,11 @@ namespace LMS.Controllers
         public IActionResult GetAssignmentsInClass(string subject, int num, string season, int year, string uid)
         {
             // TODO: Test with a submission
+            // TODO: Fix bug where only submitted assignments show up. Do this last.  Implement everything else first.
             var query =
-            from a in db.Assignments
-            join ac in db.AssignmentCategories
-            on a.AssignmentCategoryId equals ac.AssignmentCategoryId
+            from ac in db.AssignmentCategories
+            join a in db.Assignments
+            on ac.AssignmentCategoryId equals a.AssignmentCategoryId
             join cl in db.Classes
             on ac.ClassId equals cl.ClassId
             join co in db.Courses
@@ -119,17 +120,50 @@ namespace LMS.Controllers
             on a.AssignmentId equals s.AssignmentId
             into sub
             from q in sub.DefaultIfEmpty()
-            where cl.Season == season
-            && cl.Year == year
+            where co.Subject == subject
             && co.Number == num
-            && co.Subject == subject
+            && cl.Season == season
+            && cl.Year == year
             select new
             {
                 aname = a.Name,
                 cname = ac.Name,
                 due = a.DueDate,
-                score = (uint?)q.Score
+                score = q.Score
             };
+
+            foreach(var row in query)
+            {
+                System.Diagnostics.Debug.WriteLine("");
+                System.Diagnostics.Debug.WriteLine(row.aname);
+                System.Diagnostics.Debug.WriteLine(row.cname);
+                System.Diagnostics.Debug.WriteLine(row.score.ToString());
+                System.Diagnostics.Debug.WriteLine("");
+            }
+
+            //var query =
+            //from a in db.Assignments
+            //join ac in db.AssignmentCategories
+            //on a.AssignmentCategoryId equals ac.AssignmentCategoryId
+            //join cl in db.Classes
+            //on ac.ClassId equals cl.ClassId
+            //join co in db.Courses
+            //on cl.CourseId equals co.CourseId
+            //join s in db.Submissions
+            //on a.AssignmentId equals s.AssignmentId
+            //into sub
+            //from q in sub.DefaultIfEmpty()
+            //where cl.Season == season
+            //&& cl.Year == year
+            //&& co.Number == num
+            //&& co.Subject == subject
+            //select new
+            //{
+            //    aname = a.Name,
+            //    cname = ac.Name,
+            //    due = a.DueDate,
+            //    score = (uint?)q2.Score
+            //};
 
             return Json(query.ToArray());
         }

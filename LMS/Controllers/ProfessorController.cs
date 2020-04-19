@@ -106,7 +106,7 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetStudentsInClass(string subject, int num, string season, int year)
         {
-            // TODO: Test this later
+            // TODO: Works except for grade
             string fmt = "0000000";
 
             var query =
@@ -119,7 +119,7 @@ namespace LMS.Controllers
             on e.UId equals s.UId
             where cl.Season == season
             && cl.Year == year
-            && cl.CourseId == num
+            && co.Number == num
             && co.Subject == subject
             select new
             {
@@ -174,7 +174,7 @@ namespace LMS.Controllers
                 ||
                 category == null
                )
-            group q by new {assignmentName = a.Name, assignmentCategoryName = ac.Name, a.DueDate } into groupedAssignments
+            group q by new { assignmentName = a.Name, assignmentCategoryName = ac.Name, a.DueDate } into groupedAssignments
             select new
             {
                 aname = groupedAssignments.Key.assignmentName,
@@ -287,6 +287,7 @@ namespace LMS.Controllers
         /// false if an assignment with the same name already exists in the same assignment category.</returns>
         public IActionResult CreateAssignment(string subject, int num, string season, int year, string category, string asgname, int asgpoints, DateTime asgdue, string asgcontents)
         {
+            // TODO: Add side effect to calculate grade and update it
             bool result;
 
             try
@@ -304,7 +305,8 @@ namespace LMS.Controllers
                 && ac.Name == category
                 select new
                 {
-                    ac.AssignmentCategoryId
+                    ac.AssignmentCategoryId,
+                    cl.ClassId
                 };
 
                 // Create a new assignment category object.
@@ -398,6 +400,7 @@ namespace LMS.Controllers
         /// <returns>A JSON object containing success = true/false</returns>
         public IActionResult GradeSubmission(string subject, int num, string season, int year, string category, string asgname, string uid, int score)
         {
+            // TODO: Add side effect to calculate grade and update it
             var query =
             from sub in db.Submissions
             join a in db.Assignments
@@ -429,6 +432,27 @@ namespace LMS.Controllers
                 db.SaveChanges();
 
                 result = true;
+
+                var classIdQuery =
+                from a in db.Assignments
+                join ac in db.AssignmentCategories
+                on a.AssignmentCategoryId equals ac.AssignmentCategoryId
+                join cl in db.Classes
+                on ac.ClassId equals cl.ClassId
+                join co in db.Courses
+                on cl.CourseId equals co.CourseId
+                where co.Subject == subject
+                && co.Number == num
+                && cl.Season == season
+                && cl.Year == year
+                && ac.Name == category
+                && a.Name == asgname
+                select new
+                {
+                    cl.ClassId
+                };
+
+                updateClassGrade(classIdQuery.FirstOrDefault().ClassId, uint.Parse(uid.Substring(1)));
             }
             catch (Exception e)
             {
@@ -436,6 +460,11 @@ namespace LMS.Controllers
             }
 
             return Json(new { success = result });
+        }
+
+        private void updateClassGrade(uint classId, uint uId)
+        {
+            throw new NotImplementedException();
         }
 
 

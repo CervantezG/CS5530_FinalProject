@@ -106,8 +106,7 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetAssignmentsInClass(string subject, int num, string season, int year, string uid)
         {
-            // TODO: Test with a submission
-            // TODO: Fix bug where only submitted assignments show up. Do this last.  Implement everything else first.
+            // TODO: Delete comments            
             var tempTable =
             (from ac in db.AssignmentCategories
              join a in db.Assignments

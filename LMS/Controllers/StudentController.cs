@@ -68,7 +68,6 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetMyClasses(string uid)
         {
-            //TODO: Test adding grade
             var query =
             from cl in db.Classes
             join e in db.Enrolled
@@ -105,8 +104,7 @@ namespace LMS.Controllers
         /// <param name="uid"></param>
         /// <returns>The JSON array</returns>
         public IActionResult GetAssignmentsInClass(string subject, int num, string season, int year, string uid)
-        {
-            // TODO: Delete comments            
+        {          
             var tempTable =
             (from ac in db.AssignmentCategories
              join a in db.Assignments
@@ -145,85 +143,6 @@ namespace LMS.Controllers
                 };
                 ++i;
             }
-
-
-            //row.score = (uint?)99; // 
-            //db.SaveChanges();
-
-
-            //var query =
-            //from tt in tempTable
-            //join sub in db.Submissions
-            //on tt.AssignmentId equals sub.AssignmentId
-            //into final
-            //from q in final.DefaultIfEmpty()
-            //select new
-            //{
-            //    tt.aname,
-            //    tt.cname,
-            //    tt.due,
-            //    score = q.Score == null ? null : q.Score
-            //};
-
-
-
-
-            //var query =
-            //from ac in db.AssignmentCategories
-            //join a in db.Assignments
-            //on ac.AssignmentCategoryId equals a.AssignmentCategoryId
-            //join cl in db.Classes
-            //on ac.ClassId equals cl.ClassId
-            //join co in db.Courses
-            //on cl.CourseId equals co.CourseId
-            //join s in db.Submissions
-            //on a.AssignmentId equals s.AssignmentId
-            //into sub
-            //from q in sub.DefaultIfEmpty()
-            //where co.Subject == subject
-            //&& co.Number == num
-            //&& cl.Season == season
-            //&& cl.Year == year
-            //select new
-            //{
-            //    aname = a.Name,
-            //    cname = ac.Name,
-            //    due = a.DueDate,
-            //    score = q.Score
-            //};
-
-            //foreach (var row in tempTable)
-            //{
-            //    System.Diagnostics.Debug.WriteLine("");
-            //    System.Diagnostics.Debug.WriteLine(row.aname);
-            //    System.Diagnostics.Debug.WriteLine(row.cname);
-            //    System.Diagnostics.Debug.WriteLine(row.score.ToString());
-            //    System.Diagnostics.Debug.WriteLine("");
-            //}
-
-            //var query =
-            //from a in db.Assignments
-            //join ac in db.AssignmentCategories
-            //on a.AssignmentCategoryId equals ac.AssignmentCategoryId
-            //join cl in db.Classes
-            //on ac.ClassId equals cl.ClassId
-            //join co in db.Courses
-            //on cl.CourseId equals co.CourseId
-            //join s in db.Submissions
-            //on a.AssignmentId equals s.AssignmentId
-            //into sub
-            //from q in sub.DefaultIfEmpty()
-            //where cl.Season == season
-            //&& cl.Year == year
-            //&& co.Number == num
-            //&& co.Subject == subject
-            //select new
-            //{
-            //    aname = a.Name,
-            //    cname = ac.Name,
-            //    due = a.DueDate,
-            //    score = (uint?)q2.Score
-            //};
 
             return Json(results);
         }
@@ -276,7 +195,6 @@ namespace LMS.Controllers
         public IActionResult SubmitAssignmentText(string subject, int num, string season, int year,
           string category, string asgname, string uid, string contents)
         {
-            // TODO: Test where there is no assignment and then again where there is an assignment
             Boolean result = true;
 
             var query =
@@ -423,7 +341,6 @@ namespace LMS.Controllers
         /// <returns>A JSON object containing a single field called "gpa" with the number value</returns>
         public IActionResult GetGPA(string uid)
         {
-            // TODO: Test this when a student has some grades.
             var query =
             from e in db.Enrolled
             where e.UId == uint.Parse(uid.Substring(1))

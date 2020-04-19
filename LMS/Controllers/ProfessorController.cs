@@ -107,7 +107,6 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetStudentsInClass(string subject, int num, string season, int year)
         {
-            // TODO: Works except for grade
             string fmt = "0000000";
 
             var query =
@@ -289,7 +288,6 @@ namespace LMS.Controllers
         /// false if an assignment with the same name already exists in the same assignment category.</returns>
         public IActionResult CreateAssignment(string subject, int num, string season, int year, string category, string asgname, int asgpoints, DateTime asgdue, string asgcontents)
         {
-            // TODO: Add side effect to calculate grade and update it
             bool result;
 
             try
@@ -326,8 +324,6 @@ namespace LMS.Controllers
 
                 result = true;
 
-                //IActionResult x = this.GetStudentsInClass(subject, num, season, year).;
-
                 LMS.UpdateClassGrade.updateAllClassGrades(db, query.FirstOrDefault().ClassId);
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException e)
@@ -358,7 +354,6 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetSubmissionsToAssignment(string subject, int num, string season, int year, string category, string asgname)
         {
-            // TODO : Test that other peoples assignments are not also visible
             string fmt = "0000000";
 
             var query =
@@ -406,7 +401,6 @@ namespace LMS.Controllers
         /// <returns>A JSON object containing success = true/false</returns>
         public IActionResult GradeSubmission(string subject, int num, string season, int year, string category, string asgname, string uid, int score)
         {
-            // TODO: Add side effect to calculate grade and update it
             var query =
             from sub in db.Submissions
             join a in db.Assignments

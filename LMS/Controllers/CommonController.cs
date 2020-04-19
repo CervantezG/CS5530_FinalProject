@@ -150,7 +150,6 @@ namespace LMS.Controllers
         /// <returns>The assignment contents</returns>
         public IActionResult GetAssignmentContents(string subject, int num, string season, int year, string category, string asgname)
         {
-            // TODO: Test as a professor and student
             var query =
             from co in db.Courses
             join cl in db.Classes
@@ -190,7 +189,6 @@ namespace LMS.Controllers
         /// <returns>The submission text</returns>
         public IActionResult GetSubmissionText(string subject, int num, string season, int year, string category, string asgname, string uid)
         {
-            // TODO: Test as a professor and student
             uint trueUID = (uint.Parse(uid.Substring(1)));
             var query =
             from co in db.Courses
@@ -241,7 +239,6 @@ namespace LMS.Controllers
         /// </returns>
         public IActionResult GetUser(string uid)
         {
-            // TODO : Try to find when admin is run if there is time.
             uint trueUID = (uint.Parse(uid.Substring(1)));
             string fmt = "0000000";
 

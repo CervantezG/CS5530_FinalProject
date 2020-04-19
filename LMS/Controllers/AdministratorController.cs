@@ -89,7 +89,6 @@ namespace LMS.Controllers
         /// false if the Course already exists.</returns>
         public IActionResult CreateCourse(string subject, int number, string name)
         {
-            // TODO: Handle case when course number in UI is a string
             Boolean result;
 
             try

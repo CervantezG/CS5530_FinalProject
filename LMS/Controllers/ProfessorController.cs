@@ -350,7 +350,7 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetSubmissionsToAssignment(string subject, int num, string season, int year, string category, string asgname)
         {
-            // TODO : Test
+            // TODO : Test that other peoples assignments are not also visible
             string fmt = "0000000";
 
             var query =
@@ -398,9 +398,44 @@ namespace LMS.Controllers
         /// <returns>A JSON object containing success = true/false</returns>
         public IActionResult GradeSubmission(string subject, int num, string season, int year, string category, string asgname, string uid, int score)
         {
-            // TODO : Implement
+            var query =
+            from sub in db.Submissions
+            join a in db.Assignments
+            on sub.AssignmentId equals a.AssignmentId
+            join ac in db.AssignmentCategories
+            on a.AssignmentCategoryId equals ac.AssignmentCategoryId
+            join cl in db.Classes
+            on ac.ClassId equals cl.ClassId
+            join co in db.Courses
+            on cl.CourseId equals co.CourseId
+            where co.Subject == subject
+            && co.Number == num
+            && cl.Season == season
+            && cl.Year == year
+            && ac.Name == category
+            && a.Name == asgname
+            && sub.UId == uint.Parse(uid.Substring(1))
+            select sub;
 
-            return Json(new { success = true });
+            Boolean result;
+
+            try
+            {
+                foreach (Submissions row in query)
+                {
+                    row.Score = (uint)score;
+                }
+
+                db.SaveChanges();
+
+                result = true;
+            }
+            catch (Exception e)
+            {
+                result = false;
+            }
+
+            return Json(new { success = result });
         }
 
 

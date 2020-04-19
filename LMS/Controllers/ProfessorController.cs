@@ -180,7 +180,8 @@ namespace LMS.Controllers
                 aname = groupedAssignments.Key.assignmentName,
                 cname = groupedAssignments.Key.assignmentCategoryName,
                 due = groupedAssignments.Key.DueDate,
-                submissions = groupedAssignments.Count()
+                submissions = groupedAssignments.Count(q => q != null)
+
             };
 
             return Json(query.ToArray());
@@ -489,12 +490,22 @@ namespace LMS.Controllers
 
             foreach (var row in query)
             {
+                if(!possiblePoints.ContainsKey(row.categoryName))
+                {
+                    possiblePoints.Add(row.categoryName, 0);
+                }
+
+                possiblePoints[row.categoryName] = possiblePoints[row.categoryName] + row.possiblePoints;
+
                 System.Diagnostics.Debug.WriteLine("");
+                System.Diagnostics.Debug.WriteLine(row.assignmentName);
                 System.Diagnostics.Debug.WriteLine(row.categoryName);
                 System.Diagnostics.Debug.WriteLine(row.categoryWeight);
-                //System.Diagnostics.Debug.WriteLine(row.earnedPoints);
+                System.Diagnostics.Debug.WriteLine(row.possiblePoints);
                 System.Diagnostics.Debug.WriteLine("");
             }
+
+            System.Diagnostics.Debug.WriteLine(possiblePoints.ToString());
 
             // Iterate over each row in query to sum total points and possible points to 
 

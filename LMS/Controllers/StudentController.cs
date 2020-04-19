@@ -108,38 +108,99 @@ namespace LMS.Controllers
         {
             // TODO: Test with a submission
             // TODO: Fix bug where only submitted assignments show up. Do this last.  Implement everything else first.
-            var query =
-            from ac in db.AssignmentCategories
-            join a in db.Assignments
-            on ac.AssignmentCategoryId equals a.AssignmentCategoryId
-            join cl in db.Classes
-            on ac.ClassId equals cl.ClassId
-            join co in db.Courses
-            on cl.CourseId equals co.CourseId
-            join s in db.Submissions
-            on a.AssignmentId equals s.AssignmentId
-            into sub
-            from q in sub.DefaultIfEmpty()
-            where co.Subject == subject
-            && co.Number == num
-            && cl.Season == season
-            && cl.Year == year
-            select new
-            {
-                aname = a.Name,
-                cname = ac.Name,
-                due = a.DueDate,
-                score = q.Score
-            };
+            var tempTable =
+            (from ac in db.AssignmentCategories
+             join a in db.Assignments
+             on ac.AssignmentCategoryId equals a.AssignmentCategoryId
+             join cl in db.Classes
+             on ac.ClassId equals cl.ClassId
+             join co in db.Courses
+             on cl.CourseId equals co.CourseId
+             join e in db.Enrolled
+             on cl.ClassId equals e.ClassId
+             where co.Subject == subject
+             && co.Number == num
+             && cl.Season == season
+             && cl.Year == year
+             && e.UId == uint.Parse(uid.Substring(1))
+             select new
+             {
+                 a.AssignmentId,
+                 aname = a.Name,
+                 cname = ac.Name,
+                 due = a.DueDate
+             }).Distinct();
 
-            foreach(var row in query)
+            object[] results = new object[tempTable.Count()];
+
+            int i = 0;
+
+            foreach (var row in tempTable.ToArray())
             {
-                System.Diagnostics.Debug.WriteLine("");
-                System.Diagnostics.Debug.WriteLine(row.aname);
-                System.Diagnostics.Debug.WriteLine(row.cname);
-                System.Diagnostics.Debug.WriteLine(row.score.ToString());
-                System.Diagnostics.Debug.WriteLine("");
+                results[i] = new
+                {
+                    aname = row.aname,
+                    cname = row.cname,
+                    due = row.due,
+                    score = getSubmissionScore(row.AssignmentId, int.Parse(uid.Substring(1)))
+                };
+                ++i;
             }
+
+
+            //row.score = (uint?)99; // 
+            //db.SaveChanges();
+
+
+            //var query =
+            //from tt in tempTable
+            //join sub in db.Submissions
+            //on tt.AssignmentId equals sub.AssignmentId
+            //into final
+            //from q in final.DefaultIfEmpty()
+            //select new
+            //{
+            //    tt.aname,
+            //    tt.cname,
+            //    tt.due,
+            //    score = q.Score == null ? null : q.Score
+            //};
+
+
+
+
+            //var query =
+            //from ac in db.AssignmentCategories
+            //join a in db.Assignments
+            //on ac.AssignmentCategoryId equals a.AssignmentCategoryId
+            //join cl in db.Classes
+            //on ac.ClassId equals cl.ClassId
+            //join co in db.Courses
+            //on cl.CourseId equals co.CourseId
+            //join s in db.Submissions
+            //on a.AssignmentId equals s.AssignmentId
+            //into sub
+            //from q in sub.DefaultIfEmpty()
+            //where co.Subject == subject
+            //&& co.Number == num
+            //&& cl.Season == season
+            //&& cl.Year == year
+            //select new
+            //{
+            //    aname = a.Name,
+            //    cname = ac.Name,
+            //    due = a.DueDate,
+            //    score = q.Score
+            //};
+
+            //foreach (var row in tempTable)
+            //{
+            //    System.Diagnostics.Debug.WriteLine("");
+            //    System.Diagnostics.Debug.WriteLine(row.aname);
+            //    System.Diagnostics.Debug.WriteLine(row.cname);
+            //    System.Diagnostics.Debug.WriteLine(row.score.ToString());
+            //    System.Diagnostics.Debug.WriteLine("");
+            //}
 
             //var query =
             //from a in db.Assignments
@@ -165,7 +226,32 @@ namespace LMS.Controllers
             //    score = (uint?)q2.Score
             //};
 
-            return Json(query.ToArray());
+            return Json(results);
+        }
+
+        private uint? getSubmissionScore(uint assignmentId, int uId)
+        {
+            var query =
+            from sub in db.Submissions
+            where sub.AssignmentId == assignmentId
+            && sub.UId == uId
+            select new
+            {
+                sub.Score
+            };
+
+            uint? score;
+
+            if (query.Count() == 0)
+            {
+                score = null;
+            }
+            else
+            {
+                score = query.FirstOrDefault().Score;
+            }
+
+            return score;
         }
 
 
@@ -222,15 +308,15 @@ namespace LMS.Controllers
 
             foreach (var row in query)
             {
-                if(row.sub.Count() > 0)
+                if (row.sub.Count() > 0)
                 {
                     firstSubmission = false;
                 }
-            }           
+            }
 
             try
             {
-                if(firstSubmission)
+                if (firstSubmission)
                 {
                     // Create a new course object.
                     Submissions submitionOfAssignment = new Submissions
@@ -255,7 +341,7 @@ namespace LMS.Controllers
                     && s.UId == uint.Parse(uid.Substring(1))
                     select s;
 
-                    foreach(var row in existingSubmissionQuery)
+                    foreach (var row in existingSubmissionQuery)
                     {
                         row.Contents = contents;
                         row.SubmissionTime = DateTime.Now;
@@ -263,7 +349,7 @@ namespace LMS.Controllers
 
                     db.SaveChanges();
                 }
-                
+
             }
             catch (Exception)
             {
@@ -345,13 +431,13 @@ namespace LMS.Controllers
             && e.Grade != null
             select new
             {
-                gradePoints = convertLetterGradeToPoint(e.Grade.Trim())                
+                gradePoints = convertLetterGradeToPoint(e.Grade.Trim())
             };
 
             double gpa;
 
             int gradePointsCount = query.Count();
-            if(gradePointsCount > 0)
+            if (gradePointsCount > 0)
             {
                 double gradePointsSum = 0;
 
@@ -366,8 +452,8 @@ namespace LMS.Controllers
             {
                 gpa = 0.0;
             }
-            
-            return Json(new { gpa = gpa} );
+
+            return Json(new { gpa = gpa });
         }
 
         private static double convertLetterGradeToPoint(string letterGrade)

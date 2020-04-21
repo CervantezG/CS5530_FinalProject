@@ -8,7 +8,6 @@ C:\Users\God\Desktop\Spring2020\CS5530\FinalProject\Phase3\LMS_handout\LMS\bin\D
 C:\Users\God\Desktop\Spring2020\CS5530\FinalProject\Phase3\LMS_handout\LMS\bin\Debug\netcoreapp2.2\LMS.pdb
 C:\Users\God\Desktop\Spring2020\CS5530\FinalProject\Phase3\LMS_handout\LMS\bin\Debug\netcoreapp2.2\LMS.Views.dll
 C:\Users\God\Desktop\Spring2020\CS5530\FinalProject\Phase3\LMS_handout\LMS\bin\Debug\netcoreapp2.2\LMS.Views.pdb
-C:\Users\God\Desktop\Spring2020\CS5530\FinalProject\Phase3\LMS_handout\LMS\obj\Debug\netcoreapp2.2\LMS.csprojAssemblyReference.cache
 C:\Users\God\Desktop\Spring2020\CS5530\FinalProject\Phase3\LMS_handout\LMS\obj\Debug\netcoreapp2.2\LMS.RazorAssemblyInfo.cache
 C:\Users\God\Desktop\Spring2020\CS5530\FinalProject\Phase3\LMS_handout\LMS\obj\Debug\netcoreapp2.2\LMS.RazorAssemblyInfo.cs
 C:\Users\God\Desktop\Spring2020\CS5530\FinalProject\Phase3\LMS_handout\LMS\obj\Debug\netcoreapp2.2\LMS.AssemblyInfoInputs.cache

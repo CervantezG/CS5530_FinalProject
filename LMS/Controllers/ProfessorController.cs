@@ -127,7 +127,7 @@ namespace LMS.Controllers
                 lname = s.LastName,
                 uid = "u" + s.UId.ToString(fmt),
                 dob = s.Dob,
-                grade = e.Grade
+                grade = e.Grade == null ? "--" : e.Grade
             };
 
             return Json(query.ToArray());
@@ -153,7 +153,6 @@ namespace LMS.Controllers
         /// <returns>The JSON array</returns>
         public IActionResult GetAssignmentsInCategory(string subject, int num, string season, int year, string category)
         {
-            // TODO: Test.  
             var query =
             from ac in db.AssignmentCategories
             join a in db.Assignments
